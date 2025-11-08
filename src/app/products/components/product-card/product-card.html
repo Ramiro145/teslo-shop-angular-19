@@ -6,7 +6,10 @@
     />
   </figure>
   <div class="card-body">
-    <h2 class="card-title font-montserrat text-accent text-xl">{{productsInput().title}}</h2>
+    <h2
+    class="card-title font-montserrat text-accent text-xl hover:underline cursor-pointer"
+    [routerLink]="['/product',productsInput().slug]"
+    >{{productsInput().title}}</h2>
     <p>
       {{productsInput().description | slice:0:70}} ...
     </p>
