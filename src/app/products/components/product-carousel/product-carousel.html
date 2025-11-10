@@ -6,7 +6,7 @@
     @for (imageUrl of images(); track imageUrl) {
 
       <div class="swiper-slide">
-        <img class="swiper-slide" [src]="imageUrl | productImage" [alt]="imageUrl">
+        <img class="w-full object-cover animate-fadeIn" [src]="imageUrl | productImage" [alt]="imageUrl">
       </div>
     }
 
