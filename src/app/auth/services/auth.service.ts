@@ -3,7 +3,7 @@ import { computed, inject, Injectable, signal } from '@angular/core';
 import { User } from '@auth/interfaces/user.interface';
 import { environment } from '../../../environments/environment.development';
 import { AuthResponse, RegisterRequest } from '@auth/interfaces/auth-response.interface';
-import { catchError, map, Observable, of, tap } from 'rxjs';
+import { catchError, flatMap, map, Observable, of, tap } from 'rxjs';
 import { rxResource } from '@angular/core/rxjs-interop';
 
 
@@ -44,6 +44,8 @@ export class AuthService {
 
   token = computed(this._token);
 
+  isAdmin = computed(()=> this._user()?.roles.includes('admin') ?? false)
+
   login(email:string, password:string):Observable<boolean>{
     return this.http.post<AuthResponse>(`${baseUrl}/auth/login`,{
       email:email,
@@ -55,6 +57,8 @@ export class AuthService {
   }
 
   checkStatus():Observable<boolean>{
+
+    //! posible mejora de uso de cache para auth
 
     const token = localStorage.getItem('token');
 
@@ -108,6 +112,7 @@ export class AuthService {
           catchError((error:any) => this.handleAuthError(error))
         )
   }
+
 
 
 }
