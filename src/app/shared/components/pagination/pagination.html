@@ -1,19 +1,16 @@
-<div class="join flex justify-center items-center mt-4 mb-10">
-
+<div class="join flex justify-center items-center">
   @for (page of getPagesList(); track page) {
-      <button
+    <button
       class="join-item btn"
-      [class.btn-primary] = "page === activePage()"
+      [class.btn-primary]="page === activePage()"
       [routerLink]="[]"
-      [queryParams]="{page: page}"
+      [queryParams]="{ page: page }"
       (click)="activePage.set(page)"
-      >
-        {{page}}
-      </button>
-  }
+    >
+      {{ page }}
+    </button>
 
-
-  @empty {
+  } @empty {
     <p>No hay paginas</p>
   }
 </div>
