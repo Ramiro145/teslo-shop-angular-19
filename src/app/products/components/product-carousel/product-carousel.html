@@ -4,13 +4,18 @@
   <div class="swiper-wrapper">
     <!-- Slides -->
     @for (imageUrl of images(); track imageUrl) {
-
       <div class="swiper-slide">
-        <img class="w-full object-cover animate-fadeIn" [src]="imageUrl | productImage" [alt]="imageUrl">
+        <img
+          class="w-full object-cover animate-fadeIn"
+          [src]="imageUrl | productImage"
+          [alt]="imageUrl"
+        />
+      </div>
+    } @empty {
+      <div class="swiper-slide">
+        <img class="w-full object-cover animate-fadeIn" [src]="null | productImage" />
       </div>
     }
-
-
   </div>
   <!-- If we need pagination -->
   <div class="swiper-pagination"></div>

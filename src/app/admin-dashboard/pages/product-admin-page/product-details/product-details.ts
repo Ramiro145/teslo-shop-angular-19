@@ -1,10 +1,13 @@
-import { Component, inject, input, OnInit } from '@angular/core';
+import { Component, inject, input, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ProductCarousel } from '@products/components/product-carousel/product-carousel';
 import { Product } from '@products/interfaces/product.interface';
 import { FormUtils } from '@utils/form-utils';
 import { Size } from '../../../../products/interfaces/product.interface';
 import { FormErrorLabel } from "@shared/components/form-error-label/form-error-label";
+import { ProductsService } from '@products/services/products.service';
+import { Router } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'product-details',
@@ -16,6 +19,14 @@ export class ProductDetails implements OnInit {
   product = input.required<Product>();
 
   fb = inject(FormBuilder);
+
+  productsService = inject(ProductsService);
+
+  wasSaved = signal(false);
+
+  action = signal('');
+
+  router = inject(Router);
 
   sizes = ['XS','S','M','L','XL','XXL'];
 
@@ -56,10 +67,61 @@ export class ProductDetails implements OnInit {
 
   }
 
-  onSubmit(){
+  async onSubmit(){
+
     const isValid = this.productForm.valid;
 
-    console.log(this.productForm.value, {isValid})
+    this.productForm.markAllAsTouched();
+
+    if(!isValid) return;
+
+    const formValue = this.productForm.value;
+
+    const productLike: Partial<Product> = {
+      ...(formValue as any),
+      tags: formValue.tags?.toLowerCase().split(',').map(tag => tag.trim()) ?? []
+    }
+
+    console.log(productLike)
+
+    if(this.product().id === 'new'){
+      //crear producto
+
+      const product = await firstValueFrom(
+        this.productsService.createProduct(productLike)
+      )
+
+      this.wasSaved.set(true);
+      this.action.set('Producto creado correctamente')
+
+      setTimeout(() => {
+        this.wasSaved.set(false)
+        this.router.navigate(['/admin/products',product.id]);
+      }, 1500);
+
+
+
+
+    }else{
+
+      await firstValueFrom(
+        this.productsService.updateProduct(this.product().id,productLike)
+      )
+
+      this.wasSaved.set(true);
+      this.action.set('Datos actualizados correctamente')
+
+      setTimeout(() => {
+        this.wasSaved.set(false)
+      }, 3000);
+
+    }
+
+
   }
+
+
+
+
 
 }
