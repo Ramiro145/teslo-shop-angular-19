@@ -1,4 +1,4 @@
-import { Component, inject, input, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, input, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ProductCarousel } from '@products/components/product-carousel/product-carousel';
 import { Product } from '@products/interfaces/product.interface';
@@ -24,6 +24,18 @@ export class ProductDetails implements OnInit {
 
   wasSaved = signal(false);
 
+  imageFileList: FileList | undefined;
+
+  tempImages = signal<string[]>([])
+
+  imagesToShow = computed(()=>{
+    if(this.tempImages().length > 0){
+      return this.tempImages()
+    }
+
+    return this.product().images ?? [];
+  })
+
   action = signal('');
 
   router = inject(Router);
@@ -37,13 +49,14 @@ export class ProductDetails implements OnInit {
     price:[0,[Validators.required,Validators.min(0)]],
     stock:[0,[Validators.required,Validators.min(0)]],
     sizes:[['']],
-    images:[[]],
+    images:[['']],
     tags:[''],
     gender:['men',[Validators.required,Validators.pattern(/men|woman|kid|unisex/)]]
   })
 
   ngOnInit(): void {
     this.setFormValue(this.product())
+    console.log(this.product().images)
   }
 
   setFormValue(formLike:Partial<Product>){
@@ -82,8 +95,6 @@ export class ProductDetails implements OnInit {
       tags: formValue.tags?.toLowerCase().split(',').map(tag => tag.trim()) ?? []
     }
 
-    console.log(productLike)
-
     if(this.product().id === 'new'){
       //crear producto
 
@@ -117,6 +128,20 @@ export class ProductDetails implements OnInit {
 
     }
 
+
+  }
+
+  onFilesChanged(event:Event){
+    //? fileList - objeto con lista de elementos
+    const fileList = (event.target as HTMLInputElement).files;
+
+    this.imageFileList = fileList ?? undefined;
+
+    this.tempImages.set([]);
+
+    const imageUrls = Array.from(fileList ?? []).map(file => URL.createObjectURL(file))
+
+    this.tempImages.set(imageUrls);
 
   }
 
