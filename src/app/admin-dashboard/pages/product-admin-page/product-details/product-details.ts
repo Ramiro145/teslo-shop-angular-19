@@ -7,7 +7,8 @@ import { Size } from '../../../../products/interfaces/product.interface';
 import { FormErrorLabel } from "@shared/components/form-error-label/form-error-label";
 import { ProductsService } from '@products/services/products.service';
 import { Router } from '@angular/router';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, forkJoin, map, Observable, of, tap } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'product-details',
@@ -21,6 +22,8 @@ export class ProductDetails implements OnInit {
   fb = inject(FormBuilder);
 
   productsService = inject(ProductsService);
+
+  http = inject(HttpClient);
 
   wasSaved = signal(false);
 
@@ -99,7 +102,7 @@ export class ProductDetails implements OnInit {
       //crear producto
 
       const product = await firstValueFrom(
-        this.productsService.createProduct(productLike)
+        this.productsService.createProduct(productLike, this?.imageFileList)
       )
 
       this.wasSaved.set(true);
@@ -116,7 +119,7 @@ export class ProductDetails implements OnInit {
     }else{
 
       await firstValueFrom(
-        this.productsService.updateProduct(this.product().id,productLike)
+        this.productsService.updateProduct(this.product().id,productLike, this?.imageFileList)
       )
 
       this.wasSaved.set(true);
@@ -140,6 +143,8 @@ export class ProductDetails implements OnInit {
     this.tempImages.set([]);
 
     const imageUrls = Array.from(fileList ?? []).map(file => URL.createObjectURL(file))
+
+    console.log(this.imageFileList)
 
     this.tempImages.set(imageUrls);
 
